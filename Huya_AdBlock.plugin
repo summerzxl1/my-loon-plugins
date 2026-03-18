@@ -1,0 +1,107 @@
+#!name=虎牙直播去广告
+#!desc=拦截虎牙直播APP的开屏广告、信息流广告、弹窗广告、横幅广告等各类广告，同时拦截HTTPDNS和P2P上传
+#!author=Claude
+#!icon=https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/2b/79/84/2b7984db-6437-c4b2-a4b0-92b8ff1a2587/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/100x100bb.jpg
+#!homepage=https://github.com
+#!category=去广告
+#!tag=去广告, 虎牙直播
+#!system=iOS, iPadOS
+#!date=2026-03-18 00:00:00
+
+# ======================================
+# 虎牙直播去广告 Loon 插件
+# 功能：
+# 1. 拦截开屏广告
+# 2. 拦截信息流广告
+# 3. 拦截直播间内广告
+# 4. 拦截弹窗广告
+# 5. 拦截横幅广告
+# 6. 拦截广告SDK请求
+# 7. 拦截HTTPDNS防止DNS劫持
+# 8. 拦截P2P上传节省流量
+# 9. 拦截统计追踪请求
+# ======================================
+
+[Rule]
+# 拦截虎牙HTTPDNS
+DOMAIN,yyapp-httpdns.gslb.yy.com,REJECT
+DOMAIN,union-httpdns.gslb.yy.com,REJECT
+DOMAIN,httpdns-v6.gslb.yy.com,REJECT
+
+# 拦截P2P上传（节省带宽）
+DOMAIN-SUFFIX,va.huya.com,REJECT
+DOMAIN-SUFFIX,p2p.huya.com,REJECT
+
+# 拦截统计追踪
+DOMAIN,statwup.huya.com,REJECT
+DOMAIN,statlogt.huya.com,REJECT
+DOMAIN,e-stat.huya.com,REJECT
+
+# 拦截广告相关域名
+DOMAIN,adapi.huya.com,REJECT
+DOMAIN,ad.huya.com,REJECT
+DOMAIN,adv.huya.com,REJECT
+DOMAIN,mobads.baidu.com,REJECT
+DOMAIN,mobads-logs.baidu.com,REJECT
+DOMAIN,cpro.baidu.com,REJECT
+
+# 拦截广告联盟SDK
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,ibytedtos.com,REJECT
+DOMAIN,sdk.e.qq.com,REJECT
+DOMAIN,mi.gdt.qq.com,REJECT
+DOMAIN,win.gdt.qq.com,REJECT
+DOMAIN,gdt.qq.com,REJECT
+
+[Rewrite]
+# ===== 开屏广告 =====
+# 拦截开屏广告素材
+^https?:\/\/cdnfile1\.msstatic\.com\/cdnfile\/appad\/ reject-dict
+# 拦截开屏广告接口
+^https?:\/\/business\.msstatic\.com\/advertiser\/ reject-dict
+# 拦截广告配置
+^https?:\/\/cdn\.wup\.huya\.com\/launch\/queryAdConfig reject-dict
+# 拦截HTTPDNS查询
+^https?:\/\/cdn\.wup\.huya\.com\/launch\/queryHttpDns reject
+
+# ===== 信息流广告 =====
+# 拦截首页推荐流中的广告
+^https?:\/\/business\.msstatic\.com\/\d+\/adv\/ reject-dict
+^https?:\/\/business\.msstatic\.com\/\d+\/ad\/ reject-dict
+
+# ===== 直播间广告 =====
+# 拦截直播间内的广告弹窗和横幅
+^https?:\/\/cdn\.wup\.huya\.com\/huya_adr\/ reject-dict
+^https?:\/\/cdn\.wup\.huya\.com\/huya_ad\/ reject-dict
+# 拦截直播间悬浮广告
+^https?:\/\/cdnfile1\.msstatic\.com\/cdnfile\/config\/ad\/ reject-dict
+
+# ===== 弹窗/活动广告 =====
+# 拦截活动弹窗
+^https?:\/\/cdn\.wup\.huya\.com\/noti_center\/ reject-dict
+# 拦截运营推广
+^https?:\/\/business\.msstatic\.com\/cdn\/operation\/ reject-dict
+
+# ===== 横幅广告 =====
+^https?:\/\/business\.msstatic\.com\/banner\/ad\/ reject-img
+
+# ===== 广告追踪/统计 =====
+# 拦截广告监测和归因
+^https?:\/\/business\.msstatic\.com\/advertiser\/\d+\/monitor reject-dict
+^https?:\/\/msstatic\.com\/huya\/ad\/ reject-dict
+
+# ===== 第三方广告SDK =====
+# 穿山甲SDK
+^https?:\/\/api-access\.pangolin-sdk-toutiao\.com\/api\/ad\/ reject-dict
+# 广点通SDK
+^https?:\/\/mi\.gdt\.qq\.com\/gdt_mads\.fcg reject-dict
+# 百度联盟
+^https?:\/\/mobads\.baidu\.com\/cpro\/ reject-dict
+
+[Script]
+# 移除首页推荐中的广告卡片（如接口返回JSON可用脚本过滤）
+http-response ^https?:\/\/cdn\.wup\.huya\.com\/watchLive script-path=https://raw.githubusercontent.com/Script/huya_ad.js, requires-body=true, timeout=15, tag=虎牙直播间广告过滤, enabled=false
+
+[MITM]
+hostname = cdn.wup.huya.com, business.msstatic.com, cdnfile1.msstatic.com, msstatic.com
