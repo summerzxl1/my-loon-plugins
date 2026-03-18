@@ -105,7 +105,7 @@ DOMAIN,open.e.kuaishou.com,REJECT
 
 [Script]
 # 过滤接口返回中混合的广告数据（首页推荐流、直播间等）
-http-response ^https?:\/\/(?:appapi|m|api)\.huya\.com\/.*(?:recommend|feed|index|live|channel|home|splash|startup|config) script-path=https://https://raw.githubusercontent.com/summerzxl1/my-loon-plugins/refs/heads/main/huya_ad_remove.js, requires-body=true, timeout=15, tag=虎牙推荐流去广告
+http-response ^https?:\/\/(?:appapi|m|api)\.huya\.com\/.*(?:recommend|feed|index|live|channel|home|splash|startup|config) script-path=https://raw.githubusercontent.com/summerzxl1/my-loon-plugins/refs/heads/main/huya_ad_remove.js, requires-body=true, timeout=15, tag=虎牙推荐流去广告
 
 [MITM]
 hostname = cdn.wup.huya.com, business.msstatic.com, cdnfile1.msstatic.com, msstatic.com, appapi.huya.com, m.huya.com, api.huya.com, p2td-cv.cdn.huya.com, www.baidu.com, mi.gdt.qq.com, mobads.baidu.com, api-access.pangolin-sdk-toutiao.com, adx-cn.anythinktech.com
