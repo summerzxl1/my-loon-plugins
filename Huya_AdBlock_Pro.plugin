@@ -1,0 +1,106 @@
+#!name=虎牙直播去广告增强版
+#!desc=拦截虎牙直播APP开屏广告、首页信息流广告、弹窗广告、横幅广告，拦截HTTPDNS和P2P上传，通过脚本过滤混合接口中的广告数据
+#!author=Claude
+#!icon=https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/2b/79/84/2b7984db-6437-c4b2-a4b0-92b8ff1a2587/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/100x100bb.jpg
+#!homepage=https://github.com/summerzxl1/my-loon-plugins
+#!category=去广告
+#!tag=去广告, 虎牙直播
+#!system=iOS, iPadOS
+#!date=2026-03-18 12:00:00
+
+# ======================================
+# 虎牙直播去广告增强版
+# 基于抓包分析，针对虎牙私有协议和接口优化
+# ======================================
+
+[Rule]
+# ===== 拦截HTTPDNS =====
+DOMAIN,yyapp-httpdns.gslb.yy.com,REJECT
+DOMAIN,union-httpdns.gslb.yy.com,REJECT
+DOMAIN,httpdns-v6.gslb.yy.com,REJECT
+
+# ===== 拦截P2P上传 =====
+DOMAIN-SUFFIX,va.huya.com,REJECT
+DOMAIN-SUFFIX,p2p.huya.com,REJECT
+
+# ===== 拦截统计追踪 =====
+DOMAIN,statwup.huya.com,REJECT
+DOMAIN,statlogt.huya.com,REJECT
+DOMAIN,e-stat.huya.com,REJECT
+DOMAIN,ylog.huya.com,REJECT
+
+# ===== 拦截广告相关域名 =====
+DOMAIN,adapi.huya.com,REJECT
+DOMAIN,ad.huya.com,REJECT
+DOMAIN,adv.huya.com,REJECT
+
+# ===== 拦截百度广告监测 =====
+DOMAIN,mobads.baidu.com,REJECT
+DOMAIN,mobads-logs.baidu.com,REJECT
+DOMAIN,cpro.baidu.com,REJECT
+
+# ===== 拦截腾讯广告SDK =====
+DOMAIN,sdk.e.qq.com,REJECT
+DOMAIN,mi.gdt.qq.com,REJECT
+DOMAIN,win.gdt.qq.com,REJECT
+DOMAIN,t.gdt.qq.com,REJECT
+DOMAIN,v.gdt.qq.com,REJECT
+DOMAIN,c2.gdt.qq.com,REJECT
+DOMAIN,pgdt.ugdtimg.com,REJECT
+
+# ===== 拦截穿山甲广告SDK =====
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangolin-sdk-toutiao-b.com,REJECT
+DOMAIN-SUFFIX,ibytedtos.com,REJECT
+DOMAIN,is.snssdk.com,REJECT
+
+# ===== 拦截其他广告联盟 =====
+DOMAIN-SUFFIX,admobile.top,REJECT
+DOMAIN-SUFFIX,anythinktech.com,REJECT
+DOMAIN-SUFFIX,tobsnssdk.com,REJECT
+DOMAIN,open.e.kuaishou.com,REJECT
+
+[Rewrite]
+# ===== 开屏广告 =====
+^https?:\/\/cdnfile1\.msstatic\.com\/cdnfile\/appad\/ reject-dict
+^https?:\/\/business\.msstatic\.com\/advertiser\/ reject-dict
+^https?:\/\/cdn\.wup\.huya\.com\/launch\/queryAdConfig reject-dict
+^https?:\/\/cdn\.wup\.huya\.com\/launch\/queryHttpDns reject
+
+# ===== 广告监测 =====
+^https?:\/\/cdn\.wup\.huya\.com\/monitor\/monitor\.jsp reject
+^https?:\/\/www\.baidu\.com\/monitor\/monitor\.jsp reject
+
+# ===== 广告素材和配置 =====
+^https?:\/\/business\.msstatic\.com\/\d*\/?ad[vs]?\/ reject-dict
+^https?:\/\/business\.msstatic\.com\/banner\/ad\/ reject-img
+^https?:\/\/business\.msstatic\.com\/cdn\/operation\/ reject-dict
+^https?:\/\/cdnfile1\.msstatic\.com\/cdnfile\/config\/ad\/ reject-dict
+
+# ===== 直播间广告 =====
+^https?:\/\/cdn\.wup\.huya\.com\/huya_adr?\/ reject-dict
+
+# ===== 弹窗/浮窗广告 =====
+^https?:\/\/cdn\.wup\.huya\.com\/noti_center\/ reject-dict
+
+# ===== 虎牙APP内广告接口 =====
+^https?:\/\/(?:www\.)?huya\.com\/.*(?:splash|openscreen|advert|preload_ad) reject-dict
+^https?:\/\/appapi\.huya\.com\/.*(?:ad|splash|advert) reject-dict
+^https?:\/\/msstatic\.com\/huya\/ad\/ reject-dict
+
+# ===== 第三方广告SDK接口 =====
+^https?:\/\/api-access\.pangolin-sdk-toutiao\.com\/api\/ad\/ reject-dict
+^https?:\/\/mi\.gdt\.qq\.com\/gdt_mads\.fcg reject-dict
+^https?:\/\/mobads\.baidu\.com\/ reject-dict
+^https?:\/\/adx-cn\.anythinktech\.com\/ reject-dict
+
+# ===== 开屏广告图片资源 =====
+^https?:\/\/p2td-cv\.cdn\.huya\.com\/hylive-Alcover-portrait-FR\/ reject-img
+
+[Script]
+# 过滤接口返回中混合的广告数据
+http-response ^https?:\/\/(?:appapi|m|api)\.huya\.com\/.*(?:recommend|feed|index|live|channel|home|splash|startup|config) script-path=https://raw.githubusercontent.com/summerzxl1/my-loon-plugins/main/huya_ad_remove.js, requires-body=true, timeout=15, tag=虎牙推荐流去广告
+
+[MITM]
+hostname = cdn.wup.huya.com, business.msstatic.com, cdnfile1.msstatic.com, msstatic.com, appapi.huya.com, m.huya.com, api.huya.com, p2td-cv.cdn.huya.com, www.baidu.com, mi.gdt.qq.com, mobads.baidu.com, api-access.pangolin-sdk-toutiao.com, adx-cn.anythinktech.com
